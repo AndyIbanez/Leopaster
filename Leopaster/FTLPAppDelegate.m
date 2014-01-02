@@ -42,7 +42,6 @@ static NSString *expiringDefaults = @"com.fairese.ios.Leopaster.defaults.Expirat
         languages = [NSKeyedUnarchiver unarchiveObjectWithFile:inLibraryPath];
         [self refreshMenu];
     }
-    
 }
 
 -(void)aboutThisApp
