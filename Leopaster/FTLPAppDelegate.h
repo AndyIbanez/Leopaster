@@ -16,11 +16,15 @@
 @property (assign) IBOutlet NSWindow *window;
 @property (nonatomic, strong) NSStatusItem *leopasterItem;
 @property (nonatomic, strong) NSMenu *pasterMenu;
+@property (nonatomic, strong) NSWindow *aboutWindow;
 
 -(void)clickSelectedLanguage:(id)sender;
 -(void)downloadLanguages:(void (^)(NSDictionary *languagesDir, NSError *error))completion;
 -(void)refreshMenu;
 -(void)setExpirationWithSender:(id)sender;
+
+-(void)aboutThisApp;
+-(void)refreshLanguages;
 
 -(void)sendNotificationWithTitle:(NSString *)title andDescription:(NSString *)description;
 

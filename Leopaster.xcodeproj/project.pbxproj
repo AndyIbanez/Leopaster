@@ -21,6 +21,10 @@
 		6C5C48B31874B46E000F9E0F /* leopaster@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6C5C48B11874B46E000F9E0F /* leopaster@2x.png */; };
 		6C5C48B41874B46E000F9E0F /* leopaster.png in Resources */ = {isa = PBXBuildFile; fileRef = 6C5C48B21874B46E000F9E0F /* leopaster.png */; };
 		6C5C48B71874E282000F9E0F /* NSMenuItem+Font.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C5C48B61874E282000F9E0F /* NSMenuItem+Font.m */; };
+		6C5C48BA1875E6A6000F9E0F /* NSString+URLEncoding.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C5C48B91875E6A6000F9E0F /* NSString+URLEncoding.m */; };
+		6C5C48BD1875F7B0000F9E0F /* NSColor+HexString.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C5C48BC1875F7B0000F9E0F /* NSColor+HexString.m */; };
+		6C5C48C01875FB04000F9E0F /* AndyIbanezTrans.png in Resources */ = {isa = PBXBuildFile; fileRef = 6C5C48BE1875FB04000F9E0F /* AndyIbanezTrans.png */; };
+		6C5C48C11875FB04000F9E0F /* AndyIbanezTrans@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6C5C48BF1875FB04000F9E0F /* AndyIbanezTrans@2x.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +61,12 @@
 		6C5C48B21874B46E000F9E0F /* leopaster.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = leopaster.png; sourceTree = "<group>"; };
 		6C5C48B51874E282000F9E0F /* NSMenuItem+Font.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMenuItem+Font.h"; sourceTree = "<group>"; };
 		6C5C48B61874E282000F9E0F /* NSMenuItem+Font.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMenuItem+Font.m"; sourceTree = "<group>"; };
+		6C5C48B81875E6A6000F9E0F /* NSString+URLEncoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+URLEncoding.h"; sourceTree = "<group>"; };
+		6C5C48B91875E6A6000F9E0F /* NSString+URLEncoding.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+URLEncoding.m"; sourceTree = "<group>"; };
+		6C5C48BB1875F7B0000F9E0F /* NSColor+HexString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSColor+HexString.h"; sourceTree = "<group>"; };
+		6C5C48BC1875F7B0000F9E0F /* NSColor+HexString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSColor+HexString.m"; sourceTree = "<group>"; };
+		6C5C48BE1875FB04000F9E0F /* AndyIbanezTrans.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AndyIbanezTrans.png; sourceTree = "<group>"; };
+		6C5C48BF1875FB04000F9E0F /* AndyIbanezTrans@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AndyIbanezTrans@2x.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -130,6 +140,10 @@
 				6C5C48831874AE33000F9E0F /* Supporting Files */,
 				6C5C48B51874E282000F9E0F /* NSMenuItem+Font.h */,
 				6C5C48B61874E282000F9E0F /* NSMenuItem+Font.m */,
+				6C5C48B81875E6A6000F9E0F /* NSString+URLEncoding.h */,
+				6C5C48B91875E6A6000F9E0F /* NSString+URLEncoding.m */,
+				6C5C48BB1875F7B0000F9E0F /* NSColor+HexString.h */,
+				6C5C48BC1875F7B0000F9E0F /* NSColor+HexString.m */,
 			);
 			path = Leopaster;
 			sourceTree = "<group>";
@@ -167,6 +181,8 @@
 		6C5C48B01874B459000F9E0F /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				6C5C48BE1875FB04000F9E0F /* AndyIbanezTrans.png */,
+				6C5C48BF1875FB04000F9E0F /* AndyIbanezTrans@2x.png */,
 				6C5C48B11874B46E000F9E0F /* leopaster@2x.png */,
 				6C5C48B21874B46E000F9E0F /* leopaster.png */,
 			);
@@ -250,6 +266,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6C5C48C11875FB04000F9E0F /* AndyIbanezTrans@2x.png in Resources */,
+				6C5C48C01875FB04000F9E0F /* AndyIbanezTrans.png in Resources */,
 				6C5C48871874AE33000F9E0F /* InfoPlist.strings in Resources */,
 				6C5C48951874AE34000F9E0F /* Images.xcassets in Resources */,
 				6C5C48B31874B46E000F9E0F /* leopaster@2x.png in Resources */,
@@ -274,8 +292,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6C5C48BD1875F7B0000F9E0F /* NSColor+HexString.m in Sources */,
 				6C5C48901874AE33000F9E0F /* FTLPAppDelegate.m in Sources */,
 				6C5C48891874AE33000F9E0F /* main.m in Sources */,
+				6C5C48BA1875E6A6000F9E0F /* NSString+URLEncoding.m in Sources */,
 				6C5C48B71874E282000F9E0F /* NSMenuItem+Font.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

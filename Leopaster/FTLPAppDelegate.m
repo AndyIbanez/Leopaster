@@ -8,6 +8,8 @@
 
 #import "FTLPAppDelegate.h"
 #import "NSMenuItem+Font.h"
+#import "NSString+URLEncoding.h"
+#import "NSColor+HexString.h"
 
 @implementation FTLPAppDelegate
 
@@ -34,43 +36,44 @@ static NSString *expiringDefaults = @"com.fairese.ios.Leopaster.defaults.Expirat
     NSString *inLibraryPath = [NSString stringWithFormat:@"%@/Leopaster/com.fairese.ios.Leopaster.languagesList", applicationSupportDirectory];
     if(![[NSFileManager defaultManager] fileExistsAtPath:inLibraryPath])
     {
-        NSMenuItem *downloadingItem = [[NSMenuItem alloc] initWithTitle:@"Downloading Languages..." action:nil keyEquivalent:@""];
-        [self.pasterMenu addItem:downloadingItem];
-        
-        [self.leopasterItem setMenu:self.pasterMenu];
-        NSMenuItem *aboutItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"About This App", nil)
-                                                           action:@selector(aboutThisApp)
-                                                    keyEquivalent:@""];
-        
-        NSMenuItem *refreshItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Refresh Languages", nil)
-                                                             action:@selector(refreshLanguages)
-                                                      keyEquivalent:@""];
-        
-        [self.pasterMenu addItem:aboutItem];
-        [self.pasterMenu addItem:refreshItem];
-        [self.pasterMenu addItem:[NSMenuItem separatorItem]];
-        [self downloadLanguages:^(NSDictionary *languagesDir, NSError *error) {
-            if(error != nil)
-            {
-                [self sendNotificationWithTitle:NSLocalizedString(@"Languages Error", nil)
-                                 andDescription:NSLocalizedString(@"An error has occured downloading the available languages list. Please refresh the list to try again.", nil)];
-            }else
-            {
-                [[NSFileManager defaultManager] createDirectoryAtPath:[NSString stringWithFormat:@"%@/Leopaster", applicationSupportDirectory, nil]
-                                          withIntermediateDirectories:YES
-                                                           attributes:nil
-                                                                error:nil];
-                languages = languagesDir;
-                [NSKeyedArchiver archiveRootObject:languages toFile:inLibraryPath];
-                [self refreshMenu];
-            }
-        }];
+        [self refreshLanguages];
     }else
     {
         languages = [NSKeyedUnarchiver unarchiveObjectWithFile:inLibraryPath];
         [self refreshMenu];
     }
     
+}
+
+-(void)aboutThisApp
+{
+    NSRect screenRect;
+    NSArray *screenArray = [NSScreen screens];
+    NSUInteger screenCount = [screenArray count];
+    
+    for (NSUInteger index  = 0; index < screenCount; index++)
+    {
+        NSScreen *screen = [screenArray objectAtIndex: index];
+        screenRect = [screen visibleFrame];
+    }
+    
+    if(self.aboutWindow == nil)
+    {
+        self.aboutWindow = [[NSWindow alloc] initWithContentRect:CGRectMake((screenRect.size.width / 2) - 200, (screenRect.size.height / 2) + 200, 600, 300)
+                                                       styleMask:NSClosableWindowMask | NSTitledWindowMask
+                                                         backing:NSBackingStoreBuffered
+                                                           defer:NO];
+        [self.aboutWindow setBackgroundColor:[NSColor colorFromHexString:@"#ebebeb"]];
+        NSImageView *logo = [[NSImageView alloc] initWithFrame:CGRectMake(0, 100, 600, 186)];
+        logo.image = [NSImage imageNamed:@"AndyIbanezTrans"];
+        [logo setWantsLayer:YES];
+        NSTextView *appDeveloped = [[NSTextView alloc] initWithFrame:CGRectMake(5, 60, 600, 44)];
+        appDeveloped.string = NSLocalizedString(@"Developed by Andy Ibanez\nhttp://www.andyibanez.com\n@AndyIbanezK", nil);
+        [appDeveloped setBackgroundColor:[NSColor colorFromHexString:@"#ebebeb"]];
+        [self.aboutWindow.contentView addSubview:logo];
+        [self.aboutWindow.contentView addSubview:appDeveloped];
+    }
+    [self.aboutWindow makeKeyAndOrderFront:NSApp];
 }
 
 -(void)clickSelectedLanguage:(id)sender
@@ -145,7 +148,7 @@ static NSString *expiringDefaults = @"com.fairese.ios.Leopaster.defaults.Expirat
         }
         
         //Up to this point we can finally start building the request body.
-        NSString *text = [NSString stringWithFormat:@"text=%@", content];
+        NSString *text = [NSString stringWithFormat:@"text=%@", [content urlEncodeUsingEncoding:NSUTF8StringEncoding]];
         NSString *lang = [NSString stringWithFormat:@"lang=%@", languageId];
     
         NSMutableString *requestBodyString = [NSMutableString stringWithFormat:@"%@&%@", text, lang, nil];
@@ -165,7 +168,10 @@ static NSString *expiringDefaults = @"com.fairese.ios.Leopaster.defaults.Expirat
                                  andDescription:NSLocalizedString(@"Could not stablish a connection to the server.", nil)];
             }else
             {
-                NSLog(@"Response headers %@", response);
+                [pasteboard clearContents];
+                [pasteboard writeObjects:@[response.URL.absoluteString]];
+                [self sendNotificationWithTitle:NSLocalizedString(@"Paste Succesfull", nil)
+                                 andDescription:NSLocalizedString(@"A link to your paste has been added to your clipboard. You may now paste it anywhere.", nil)];
             }
         }];
         
@@ -200,6 +206,46 @@ static NSString *expiringDefaults = @"com.fairese.ios.Leopaster.defaults.Expirat
         [[NSUserDefaults standardUserDefaults] setObject:sndr.title forKey:expiringDefaults];
         [self refreshMenu];
     }
+}
+
+-(void)refreshLanguages
+{
+    [self.pasterMenu removeAllItems];
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+    NSString *applicationSupportDirectory = [paths objectAtIndex:0];
+    NSString *inLibraryPath = [NSString stringWithFormat:@"%@/Leopaster/com.fairese.ios.Leopaster.languagesList", applicationSupportDirectory];
+    NSMenuItem *downloadingItem = [[NSMenuItem alloc] initWithTitle:@"Downloading Languages..." action:nil keyEquivalent:@""];
+    [self.pasterMenu addItem:downloadingItem];
+    
+    [self.leopasterItem setMenu:self.pasterMenu];
+    NSMenuItem *aboutItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"About This App", nil)
+                                                       action:@selector(aboutThisApp)
+                                                keyEquivalent:@""];
+    
+    NSMenuItem *refreshItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"Refresh Languages", nil)
+                                                         action:@selector(refreshLanguages)
+                                                  keyEquivalent:@""];
+    
+    [self.pasterMenu addItem:aboutItem];
+    [self.pasterMenu addItem:refreshItem];
+    [self.pasterMenu addItem:[NSMenuItem separatorItem]];
+    [self downloadLanguages:^(NSDictionary *languagesDir, NSError *error) {
+        if(error != nil)
+        {
+            [self sendNotificationWithTitle:NSLocalizedString(@"Languages Error", nil)
+                             andDescription:NSLocalizedString(@"An error has occured downloading the available languages list. Please refresh the list to try again.", nil)];
+        }else
+        {
+            [[NSFileManager defaultManager] createDirectoryAtPath:[NSString stringWithFormat:@"%@/Leopaster", applicationSupportDirectory, nil]
+                                      withIntermediateDirectories:YES
+                                                       attributes:nil
+                                                            error:nil];
+            NSLog(@"languages");
+            languages = languagesDir;
+            [NSKeyedArchiver archiveRootObject:languages toFile:inLibraryPath];
+            [self refreshMenu];
+        }
+    }];
 }
 
 -(void)refreshMenu
