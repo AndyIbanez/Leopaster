@@ -52,11 +52,8 @@ static NSString *expiringDefaults = @"com.fairese.ios.Leopaster.defaults.Expirat
         [self downloadLanguages:^(NSDictionary *languagesDir, NSError *error) {
             if(error != nil)
             {
-                NSUserNotification *errorNotif = [[NSUserNotification alloc] init];
-                errorNotif.title = NSLocalizedString(@"Languages Error", nil);
-                errorNotif.informativeText = NSLocalizedString(@"An error has occured downloading the available languages list. Please refresh the list to try again.", nil);
-                errorNotif.deliveryDate = [NSDate dateWithTimeInterval:3 sinceDate:[NSDate date]];
-                [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:errorNotif];
+                [self sendNotificationWithTitle:NSLocalizedString(@"Languages Error", nil)
+                                 andDescription:NSLocalizedString(@"An error has occured downloading the available languages list. Please refresh the list to try again.", nil)];
             }else
             {
                 [[NSFileManager defaultManager] createDirectoryAtPath:[NSString stringWithFormat:@"%@/Leopaster", applicationSupportDirectory, nil]
@@ -78,7 +75,105 @@ static NSString *expiringDefaults = @"com.fairese.ios.Leopaster.defaults.Expirat
 
 -(void)clickSelectedLanguage:(id)sender
 {
-
+    NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
+    NSString *content = [pasteboard stringForType:NSPasteboardTypeString];
+    //Handy that pasteboard can properly recognize types and completely ignore data types we don't care about. If we don't have a legit string, that returns nil.
+    if(content != nil)
+    {
+        NSString *newPasteUrl = @"https://ghostbin.com/paste/new";
+        
+        /*
+         Ghostbin requires the following content-type:
+         
+            application/x-www-form-urlencoded
+        
+         Which is not being specified in my code, because according to this accepted
+         answer in this stackoverflow question, it is the default one in NSURLRequest:
+         
+            http://stackoverflow.com/questions/2071788/iphone-sending-post-with-nsurlconnection
+         */
+        
+        //I'm aware of the ugliness of the code below.
+        NSString *expiryParameter = nil;
+        if(![[[NSUserDefaults standardUserDefaults] objectForKey:expiringDefaults] isEqualToString:NSLocalizedString(@"Undefined", nil)])
+        {
+            NSString *fullTime = (NSString *)[[NSUserDefaults standardUserDefaults] objectForKey:expiringDefaults];
+            char timeMark;
+            if([fullTime rangeOfString:@"Minute"].location != NSNotFound)
+            {
+                timeMark = 'm';
+            }
+            
+            if([fullTime rangeOfString:@"Hour"].location != NSNotFound)
+            {
+                timeMark = 'h';
+            }
+            
+            if([fullTime rangeOfString:@"Day"].location != NSNotFound)
+            {
+                timeMark = 'd';
+            }
+            
+            //To make it adding more expiration times easier in the future, we will split the string using the first white space, so we can easily grab it's time (first item of the array).
+            NSArray *splat = [fullTime componentsSeparatedByString:@" "];
+            expiryParameter = [NSString stringWithFormat:@"expire=%@%c", splat[0], timeMark];
+        }
+        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:newPasteUrl]];
+        
+        
+        //Fetching the actual language ID can be tricky but nothing to worry about. We just need the parentMenu item name and the actual language we chose.
+        NSString *languageId = nil;
+        
+        NSString *selectedLang = ((NSMenuItem *)sender).title;
+        NSMenuItem *parentMenuItem = ((NSMenuItem *)sender).parentItem;
+        NSString *parentTitle = parentMenuItem.title;
+        
+        for(NSDictionary *langParent in languages)
+        {
+            if([langParent[@"name"] isEqualToString:parentTitle])
+            {
+                for(NSDictionary *lang in langParent[@"languages"])
+                {
+                    if([lang[@"name"] isEqualToString:selectedLang])
+                    {
+                        languageId = lang[@"id"];
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+        
+        //Up to this point we can finally start building the request body.
+        NSString *text = [NSString stringWithFormat:@"text=%@", content];
+        NSString *lang = [NSString stringWithFormat:@"lang=%@", languageId];
+    
+        NSMutableString *requestBodyString = [NSMutableString stringWithFormat:@"%@&%@", text, lang, nil];
+        if(expiryParameter != nil)
+        {
+            [requestBodyString appendFormat:@"&%@", expiryParameter, nil];
+        }
+        
+        [request setHTTPMethod:@"POST"];
+        [request setHTTPBody:[requestBodyString dataUsingEncoding:NSUTF8StringEncoding]];
+        
+        NSOperationQueue *conQueue = [[NSOperationQueue alloc] init];
+        [NSURLConnection sendAsynchronousRequest:request queue:conQueue completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+            if(connectionError != nil)
+            {
+                [self sendNotificationWithTitle:NSLocalizedString(@"Paste Failed", nil)
+                                 andDescription:NSLocalizedString(@"Could not stablish a connection to the server.", nil)];
+            }else
+            {
+                NSLog(@"Response headers %@", response);
+            }
+        }];
+        
+    }else
+    {
+        [self sendNotificationWithTitle:NSLocalizedString(@"Paste Failed", nil)
+                         andDescription:NSLocalizedString(@"Unable to create a new paste. Please ensure you're trying to create a paste with a string.", nil)];
+    }
 }
 
 -(void)downloadLanguages:(void (^)(NSDictionary *languagesDir, NSError *error))completion;
@@ -218,6 +313,15 @@ static NSString *expiringDefaults = @"com.fairese.ios.Leopaster.defaults.Expirat
      shouldPresentNotification:(NSUserNotification *)notification
 {
     return YES;
+}
+
+-(void)sendNotificationWithTitle:(NSString *)title andDescription:(NSString *)description
+{
+    NSUserNotification *errorNotif = [[NSUserNotification alloc] init];
+    errorNotif.title = title;
+    errorNotif.informativeText = description;
+    errorNotif.deliveryDate = [NSDate dateWithTimeInterval:3 sinceDate:[NSDate date]];
+    [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:errorNotif];
 }
 
 @end

@@ -22,4 +22,6 @@
 -(void)refreshMenu;
 -(void)setExpirationWithSender:(id)sender;
 
+-(void)sendNotificationWithTitle:(NSString *)title andDescription:(NSString *)description;
+
 @end
